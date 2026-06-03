@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10 Python Automation Scripts That Save 10+ Hours Every Week</title>
+<meta name="description" content="Ready-to-use Python automation scripts for file organization, data entry, email sending, report generation, and more. No coding experience required.">
+<meta name="keywords" content="Python automation scripts, automate tasks with Python, Python for productivity, task automation, Python scripts for business">
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;max-width:800px;margin:0 auto;padding:40px 20px;color:#1e293b;line-height:1.8;background:#f8fafc}h1{font-size:2.2em;color:#0f172a}h2{font-size:1.5em;color:#1e3a5f;margin-top:40px;border-bottom:2px solid #e2e8f0;padding-bottom:8px}h3{font-size:1.2em;color:#334155;margin-top:28px}pre{background:#1e293b;color:#e2e8f0;padding:16px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.6}.output{background:#f0fdf4;color:#065f46;padding:12px 16px;border-radius:8px;font-size:14px}.note{background:#eff6ff;border-left:4px solid #3b82f6;padding:16px 20px;margin:20px 0;border-radius:0 8px 8px 0}.cta{background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#fff;padding:30px;border-radius:12px;margin:40px 0;text-align:center}.cta h2{color:#fbbf24;border:none}.cta a{display:inline-block;background:#f59e0b;color:#000;padding:14px 40px;border-radius:50px;font-weight:700;text-decoration:none;margin-top:15px}</style>
+</head>
+<body>
+
+<h1>10 Python Automation Scripts That Save 10+ Hours Every Week</h1>
+<p style="color:#64748b">Published: June 2026 · 8 min read</p>
+
+<p>Here's a truth most people don't want to hear: <strong>if you do the same computer task more than 3 times, you should automate it.</strong></p>
+
+<p>Python makes automation accessible even if you're not a programmer. Below are 10 scripts that handle the repetitive tasks eating your time — file organization, data entry, email processing, PDF manipulation, and more.</p>
+
+<p>Every script is <strong>copy-paste ready</strong>. Change the file paths and run.</p>
+
+<h2>1. Bulk File Organizer</h2>
+<p><strong>Saves:</strong> 30 minutes/week of manual file sorting</p>
+<p>Automatically sorts files into folders by extension. Downloads folder → organized in seconds.</p>
+
+<pre>import os, shutil
+from pathlib import Path
+
+DOWNLOADS = Path.home() / "Downloads"
+CATEGORIES = {
+    "Images": [".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"],
+    "Documents": [".pdf", ".docx", ".xlsx", ".pptx", ".txt", ".csv"],
+    "Audio": [".mp3", ".wav", ".flac", ".aac"],
+    "Video": [".mp4", ".mov", ".avi", ".mkv"],
+    "Archives": [".zip", ".rar", ".7z", ".tar.gz"],
+    "Code": [".py", ".js", ".html", ".css", ".json"],
+}
+
+for file in DOWNLOADS.iterdir():
+    if file.is_file():
+        ext = file.suffix.lower()
+        for category, extensions in CATEGORIES.items():
+            if ext in extensions:
+                dest = DOWNLOADS / category
+                dest.mkdir(exist_ok=True)
+                shutil.move(str(file), str(dest / file.name))
+                print(f"Moved: {file.name} → {category}/")
+                break</pre>
+
+<h2>2. CSV Merger — Combine 100 Files in 2 Seconds</h2>
+<p><strong>Saves:</strong> 20 minutes per merge operation</p>
+<p>Got 50 CSV exports from different sources? Merge them all into one clean file.</p>
+
+<pre>import pandas as pd
+from pathlib import Path
+import glob
+
+csv_files = glob.glob("data/*.csv")
+dfs = []
+
+for file in csv_files:
+    df = pd.read_csv(file)
+    print(f"Loaded: {file} ({len(df)} rows)")
+    dfs.append(df)
+
+merged = pd.concat(dfs, ignore_index=True)
+merged.to_csv("merged_output.csv", index=False)
+print(f"Done! {len(merged)} total rows → merged_output.csv")</pre>
+
+<h2>3. Automated Email Reports</h2>
+<p><strong>Saves:</strong> 15 minutes per report</p>
+<p>Send automated daily/weekly reports to your team or clients.</p>
+
+<pre>import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import date
+
+SMTP_SERVER = "smtp.gmail.com"
+SMTP_PORT = 587
+SENDER = "your_email@gmail.com"
+PASSWORD = "your_app_password"  # Use App Password, not regular password
+
+def send_report(to_email, subject, body, attachment_path=None):
+    msg = MIMEMultipart()
+    msg["From"] = SENDER
+    msg["To"] = to_email
+    msg["Subject"] = subject
+    msg.attach(MIMEText(body, "plain"))
+
+    if attachment_path:
+        with open(attachment_path, "rb") as f:
+            attach = MIMEText(f.read(), "base64", "utf-8")
+            attach.add_header("Content-Disposition", f"attachment; filename={attachment_path}")
+            msg.attach(attach)
+
+    with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
+        server.starttls()
+        server.login(SENDER, PASSWORD)
+        server.send_message(msg)
+
+send_report(
+    "boss@company.com",
+    f"Daily Report — {date.today()}",
+    "Hi, here's today's summary:\n\n- Sales: $1,245\n- New leads: 12\n- Support tickets: 4",
+    "daily_report.csv"
+)</pre>
+
+<h2>4. PDF Merger & Splitter</h2>
+<p><strong>Saves:</strong> 10 minutes per PDF operation</p>
+<p>Combine 20 invoices into one PDF. Or split one large PDF into individual pages.</p>
+
+<pre>from PyPDF2 import PdfMerger, PdfReader, PdfWriter
+
+# Merge PDFs
+merger = PdfMerger()
+for pdf in ["report1.pdf", "report2.pdf", "report3.pdf"]:
+    merger.append(pdf)
+merger.write("combined_report.pdf")
+merger.close()
+print("Merged into combined_report.pdf")
+
+# Split PDF into individual pages
+reader = PdfReader("large_document.pdf")
+for i, page in enumerate(reader.pages):
+    writer = PdfWriter()
+    writer.add_page(page)
+    writer.write(f"page_{i+1}.pdf")
+print(f"Split into {len(reader.pages)} files")</pre>
+
+<h2>5. Web Table Extractor — Save Tables to Excel</h2>
+<p><strong>Saves:</strong> 15 minutes per extraction</p>
+<p>Scrape every HTML table from a webpage and save to Excel in one command.</p>
+
+<pre>import pandas as pd
+import requests
+
+url = "https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)"
+tables = pd.read_html(url)
+
+for i, table in enumerate(tables):
+    filename = f"table_{i+1}.xlsx"
+    table.to_excel(filename, index=False)
+    print(f"Saved: {filename} ({len(table)} rows × {len(table.columns)} cols)")</pre>
+
+<h2>6. Duplicate File Finder</h2>
+<p><strong>Saves:</strong> Hours of manual cleanup + GBs of disk space</p>
+
+<pre>import os, hashlib
+from pathlib import Path
+from collections import defaultdict
+
+def file_hash(filepath):
+    hasher = hashlib.md5()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+def find_duplicates(directory):
+    hashes = defaultdict(list)
+    for filepath in Path(directory).rglob("*"):
+        if filepath.is_file():
+            hashes[file_hash(filepath)].append(filepath)
+
+    for h, files in hashes.items():
+        if len(files) > 1:
+            print(f"\nDuplicate group ({len(files)} files):")
+            for f in files:
+                size_mb = os.path.getsize(f) / (1024*1024)
+                print(f"  {f} ({size_mb:.1f} MB)")
+
+find_duplicates("C:/Users/Admin/Documents")</pre>
+
+<h2>7. Automated Excel Report Generator</h2>
+<p><strong>Saves:</strong> 30+ minutes per report</p>
+<p>Pull data from multiple sources, run calculations, create charts, and save a formatted Excel report.</p>
+
+<pre>import pandas as pd
+from openpyxl import Workbook
+from openpyxl.chart import BarChart, Reference
+from openpyxl.styles import Font, PatternFill
+
+# Read data
+sales = pd.read_csv("sales_data.csv")
+sales["revenue"] = sales["quantity"] * sales["price"]
+
+# Summarize
+summary = sales.groupby("product")["revenue"].sum().sort_values(ascending=False)
+
+# Write to Excel with formatting
+wb = Workbook()
+ws = wb.active
+ws.title = "Sales Report"
+
+ws["A1"] = "Sales Report"
+ws["A1"].font = Font(size=16, bold=True)
+
+ws["A3"] = "Product"; ws["B3"] = "Revenue"
+for cell in [ws["A3"], ws["B3"]]:
+    cell.font = Font(bold=True, color="ffffff")
+    cell.fill = PatternFill(start_color="1e3a5f", fill_type="solid")
+
+for i, (product, rev) in enumerate(summary.items()):
+    ws[f"A{4+i}"] = product
+    ws[f"B{4+i}"] = rev
+    ws[f"B{4+i}"].number_format = '$#,##0'
+
+# Add chart
+chart = BarChart()
+data = Reference(ws, min_col=2, min_row=3, max_row=3+len(summary))
+chart.add_data(data, titles_from_data=True)
+chart.set_categories(Reference(ws, min_col=1, min_row=4, max_row=3+len(summary)))
+ws.add_chart(chart, "D3")
+
+wb.save("sales_report.xlsx")
+print("Report saved: sales_report.xlsx")</pre>
+
+<h2>8. Image Bulk Resizer</h2>
+<p><strong>Saves:</strong> 1+ hour per batch</p>
+<p>Resize 500 product photos to web-optimized sizes in 30 seconds.</p>
+
+<pre>from PIL import Image
+from pathlib import Path
+
+INPUT_DIR = Path("original_photos")
+OUTPUT_DIR = Path("resized_photos")
+OUTPUT_DIR.mkdir(exist_ok=True)
+MAX_WIDTH = 1200
+
+for img_path in INPUT_DIR.glob("*"):
+    if img_path.suffix.lower() in (".jpg", ".jpeg", ".png", ".webp"):
+        img = Image.open(img_path)
+        if img.width > MAX_WIDTH:
+            ratio = MAX_WIDTH / img.width
+            new_size = (MAX_WIDTH, int(img.height * ratio))
+            img = img.resize(new_size, Image.LANCZOS)
+
+        output_path = OUTPUT_DIR / f"{img_path.stem}.jpg"
+        img.convert("RGB").save(output_path, "JPEG", quality=85, optimize=True)
+        print(f"Resized: {img_path.name} → {output_path.name}")</pre>
+
+<h2>9. Text File Batch Processor</h2>
+<p><strong>Saves:</strong> 30+ minutes per batch edit</p>
+<p>Find-and-replace across 100 text files, rename batches, extract specific lines.</p>
+
+<pre>from pathlib import Path
+
+def batch_replace(directory, find_text, replace_text, file_pattern="*.txt"):
+    """Replace text across all matching files in a directory."""
+    for filepath in Path(directory).glob(file_pattern):
+        content = filepath.read_text(encoding="utf-8")
+        count = content.count(find_text)
+        if count > 0:
+            content = content.replace(find_text, replace_text)
+            filepath.write_text(content, encoding="utf-8")
+            print(f"Updated: {filepath.name} ({count} replacements)")
+
+# Usage
+batch_replace("marketing/copy/", "2025", "2026")</pre>
+
+<h2>10. Website Uptime Monitor</h2>
+<p><strong>Saves:</strong> Your business when your site goes down</p>
+<p>Check your website every 5 minutes; alert you if it's down.</p>
+
+<pre>import requests, time, smtplib
+from datetime import datetime
+
+URL = "https://yoursite.com"
+CHECK_INTERVAL = 300  # 5 minutes
+ALERT_EMAIL = "you@gmail.com"
+
+def alert(message):
+    print(f"ALERT: {message}")
+    # Add email/SMS alert here (see script #3 above)
+
+while True:
+    try:
+        r = requests.get(URL, timeout=10)
+        if r.status_code == 200:
+            print(f"{datetime.now().strftime('%H:%M:%S')} ✅ {URL} is up")
+        else:
+            alert(f"{URL} returned status {r.status_code}")
+    except Exception as e:
+        alert(f"{URL} is DOWN: {e}")
+    time.sleep(CHECK_INTERVAL)</pre>
+
+<div class="note">
+<p><strong>How to run these scripts:</strong></p>
+<ol>
+<li>Install Python from <a href="https://python.org">python.org</a> (free)</li>
+<li>Save any script as a <code>.py</code> file</li>
+<li>Open Terminal/Command Prompt in that folder</li>
+<li>Run: <code>python script_name.py</code></li>
+<li>For scripts with dependencies: <code>pip install pandas openpyxl pyPDF2 pillow</code></li>
+</ol>
+</div>
+
+<h2>The $100/Hour Math</h2>
+
+<p>If these 10 scripts save you 10 hours per week at $50/hour, that's <strong>$26,000 worth of your time per year</strong>. Even if you only use 3 of them: $7,800 per year.</p>
+
+<p>The best part: once written, they work forever. For free.</p>
+
+<div class="cta">
+<h2>Want All 10 Scripts + More?</h2>
+<p>Our Python Automation Toolkit includes all 10 scripts above — documented, tested, and ready to run. Plus a setup guide that takes you from zero to automated in 30 minutes.</p>
+<p style="font-size:1.2em"><strong>Part of the Productivity Power Bundle — $79 for everything.</strong></p>
+<a href="https://zhangmx.gumroad.com/l/yiuuin">Get the Bundle</a>
+</div>
+
+</body>
+</html>
